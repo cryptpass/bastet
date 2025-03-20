@@ -1,0 +1,26 @@
+---
+name: Gradle Test
+
+on:
+    push:
+
+jobs:
+    test:
+        name: Test
+        runs-on: global
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4.1.7
+
+            - name: Build with Gradle
+              run: |+
+                  ./gradlew test
+
+            - name: Archive Gradle Test Report
+              uses: actions/upload-artifact@v3.2.0-node20 # https://gitea.com/actions/upload-artifact#v4---whats-new
+              if: always()
+              with:
+                  name: gradle-reports
+                  path: |
+                      **/build/reports/
+                      **/build/test-results/

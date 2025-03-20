@@ -1,0 +1,22 @@
+
+
+BBBBBBBBBBBBBBBBB                                              tttt                                       tttt
+B::::::::::::::::B                                          ttt:::t                                    ttt:::t
+B::::::BBBBBB:::::B                                         t:::::t                                    t:::::t
+BB:::::B     B:::::B                                        t:::::t                                    t:::::t
+  B::::B     B:::::B  aaaaaaaaaaaaa      ssssssssss   ttttttt:::::ttttttt        eeeeeeeeeeee    ttttttt:::::ttttttt
+  B::::B     B:::::B  a::::::::::::a   ss::::::::::s  t:::::::::::::::::t      ee::::::::::::ee  t:::::::::::::::::t
+  B::::BBBBBB:::::B   aaaaaaaaa:::::ass:::::::::::::s t:::::::::::::::::t     e::::::eeeee:::::eet:::::::::::::::::t
+  B:::::::::::::BB             a::::as::::::ssss:::::stttttt:::::::tttttt    e::::::e     e:::::etttttt:::::::tttttt
+  B::::BBBBBB:::::B     aaaaaaa:::::a s:::::s  ssssss       t:::::t          e:::::::eeeee::::::e      t:::::t
+  B::::B     B:::::B  aa::::::::::::a   s::::::s            t:::::t          e:::::::::::::::::e       t:::::t
+  B::::B     B:::::B a::::aaaa::::::a      s::::::s         t:::::t          e::::::eeeeeeeeeee        t:::::t
+  B::::B     B:::::Ba::::a    a:::::assssss   s:::::s       t:::::t    tttttte:::::::e                 t:::::t    tttttt
+BB:::::BBBBBB::::::Ba::::a    a:::::as:::::ssss::::::s      t::::::tttt:::::te::::::::e                t::::::tttt:::::t
+B:::::::::::::::::B a:::::aaaa::::::as::::::::::::::s       tt::::::::::::::t e::::::::eeeeeeee        tt::::::::::::::t
+B::::::::::::::::B   a::::::::::aa:::as:::::::::::ss          tt:::::::::::tt  ee:::::::::::::e          tt:::::::::::tt
+BBBBBBBBBBBBBBBBB     aaaaaaaaaa  aaaa sssssssssss              ttttttttttt      eeeeeeeeeeeeee            ttttttttttt
+
+${application.title} :: ${application.version}
+Spring-Boot :: ${spring-boot.version}
+

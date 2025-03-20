@@ -1,0 +1,90 @@
+---
+- name: Deploy Bastet
+  hosts: all:!localhost
+  become: true
+  gather_facts: true
+  tags: always
+  vars:
+      image_name: bastet
+      container_name: bastet
+      bastet_version: "{{ lookup('file', (playbook_dir | dirname) + '/BASTET_VERSION', errors='strict') }}"
+  # roles:
+  #     - role: geerlingguy.docker  # install the role from tasks after installing python3 and procps
+  tasks:
+      - name: Assert that bastet_version variable is defined
+        ansible.builtin.assert:
+            that:
+                - bastet_version is defined
+                - bastet_version is not none
+                - bastet_version | length > 0
+            fail_msg: "bastet_version is not defined"
+
+      - name: Install python3 and procps
+        ansible.builtin.raw: DEBIAN_FRONTEND=noninteractive apt-get update
+            && DEBIAN_FRONTEND=noninteractive apt-get install -y python3 procps
+        register: cs_patch_install_python_pip_result_raw
+        changed_when: "'0 upgraded, 0 newly installed' not in
+            cs_patch_install_python_pip_result_raw.stdout"
+
+      - name: Install packages
+        ansible.builtin.apt:
+            name: python3-docker
+            state: present
+
+      - name: Install docker
+        ansible.builtin.import_role:
+            name: geerlingguy.docker
+
+      - name: Make build directory
+        ansible.builtin.file:
+            path: "{{ item }}"
+            state: directory
+            mode: "0755"
+        loop:
+            - "{{ bastet_data_dir }}"
+            - "{{ bastet_data_dir }}/logs"
+
+      - name: Copy resources
+        ansible.builtin.copy:
+            src: "{{ item.src | default(omit) }}"
+            dest: "{{ item.dest }}"
+            content: "{{ item.content | default(omit) }}"
+            remote_src: false
+            mode: "0755"
+        with_items:
+            - src: "{{ playbook_dir | dirname }}/build/libs/bastet-boot-{{ bastet_version }}.jar"
+              dest: "{{ bastet_data_dir }}/app.jar"
+            - content: "{{ ssl_key_pem }}"
+              dest: "{{ bastet_data_dir }}/private.pem"
+            - content: "{{ ssl_cert_pem }}"
+              dest: "{{ bastet_data_dir }}/certificate.pem"
+            - content: "{{ spring_boot_application_yaml | to_nice_yaml }}"
+              dest: "{{ bastet_data_dir }}/application.yml"
+
+      - name: Allow ufw
+        community.general.ufw:
+            rule: allow
+            port: "{{ bastet_port }}"
+            proto: tcp
+            state: enabled
+
+      - name: Run docker
+        community.docker.docker_container:
+            name: "{{ container_name }}"
+            image: "{{ ansible_fqdn }}/{{ image_name }}:{{ bastet_version }}"
+            state: started
+            recreate: true
+            restart_policy: unless-stopped
+            working_dir: "{{ bastet_data_dir }}"
+            env:
+                TZ: Asia/Kolkata
+                BASTET_LOG_DIR: "{{ bastet_data_dir }}/logs"
+            ports:
+                - "{{ bastet_port }}:{{ bastet_port }}"
+            volumes:
+                - "{{ bastet_data_dir }}:{{ bastet_data_dir }}"
+            command:
+                - java
+                - "-jar"
+                - "{{ bastet_data_dir }}/app.jar"
+                - "--spring.config.location={{ bastet_data_dir }}/application.yml"

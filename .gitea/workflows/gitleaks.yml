@@ -1,0 +1,28 @@
+---
+name: Gitleaks
+"on":
+    push:
+    pull_request:
+    workflow_dispatch:
+    schedule:
+        - cron: "0 4 * * *" # run once a day at 4 AM
+
+jobs:
+    gitleaks:
+        permissions: write-all
+        name: gitleaks
+        runs-on: global
+        steps:
+            - uses: actions/checkout@v4.2.2
+              with:
+                  fetch-depth: 0
+
+            - name: Run Gitleaks
+              run: gitleaks detect --source . --report-format json --report-path gitleaks-secrets.json
+
+            - name: Archive Gitleaks Report
+              uses: actions/upload-artifact@v3.2.0-node20 # https://gitea.com/actions/upload-artifact#v4---whats-new
+              if: always()
+              with:
+                  name: gitleaks-secrets
+                  path: gitleaks-secrets.json

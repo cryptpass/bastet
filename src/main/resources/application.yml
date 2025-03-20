@@ -1,0 +1,32 @@
+---
+server:
+    servlet:
+        context-path: /
+    port: 8081
+spring:
+    application:
+        name: bastet
+    main:
+        lazy-initialization: true
+    datasource:
+        driver-class-name: org.sqlite.JDBC
+        username: sa
+        password: sa
+        url: jdbc:sqlite:db.sqlite3
+        hikari:
+            auto-commit: true
+            isolate-internal-queries: true
+            maximum-pool-size: 5
+            minimum-idle: 1
+            driver-class-name: org.sqlite.JDBC
+    jpa:
+        database-platform: org.hibernate.community.dialect.SQLiteDialect
+        generate-ddl: true
+        open-in-view: true
+        hibernate:
+            ddl-auto: update
+
+bastet:
+    root-password: root1
+    auth-header-key: Authorization
+    unlock-key: 5jcK7IMk3+QbNLikFRl3Zwgl9xagKD87s5dT2UqaSR4=:$:5jcK7IMk3+QbNLikFRl3Zw==
