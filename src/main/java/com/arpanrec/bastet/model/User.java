@@ -27,7 +27,7 @@ public class User implements UserDetails, CredentialsContainer {
     @Serial
     private static final long serialVersionUID = -8372582194659560207L;
 
-    @SuppressWarnings({"usused"})
+    @SuppressWarnings({"unused"})
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_c")
