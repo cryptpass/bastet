@@ -11,8 +11,6 @@ plugins {
     id("io.spring.dependency-management") version "1.1.7"
     id("org.jetbrains.kotlin.jvm") version "2.1.10" // kotlin("jvm") version "2.1.10"
     id("org.jetbrains.kotlin.plugin.spring") version "2.1.10" // kotlin("plugin.spring") version "2.1.10"
-    id("org.jetbrains.kotlin.plugin.jpa") version "2.1.0" // kotlin("plugin.jpa") version "2.1.0"
-    id("org.hibernate.orm") version "6.6.11.Final"
     id("org.jetbrains.kotlin.plugin.serialization") version "2.1.10"
     idea
     id("org.graalvm.buildtools.native") version "0.10.3"
@@ -20,48 +18,6 @@ plugins {
 
 group = "com.arpanrec"
 version = getVersions()
-
-java {
-    sourceCompatibility = JavaVersion.VERSION_21
-    toolchain {
-        languageVersion.set(JavaLanguageVersion.of(21))
-    }
-}
-
-graalvmNative {
-    binaries {
-        all {
-            javaLauncher.set(javaToolchains.launcherFor {
-                languageVersion.set(JavaLanguageVersion.of(21))
-                vendor.set(JvmVendorSpec.GRAAL_VM)
-            })
-        }
-    }
-}
-
-sourceSets {
-    main {
-        java { srcDirs("src/main/java") }
-        kotlin { srcDirs("src/main/kotlin") }
-    }
-    test {
-        java { srcDirs("src/test/java") }
-        kotlin { srcDirs("src/test/kotlin") }
-    }
-}
-
-configurations {
-    compileOnly {
-        extendsFrom(configurations.annotationProcessor.get())
-    }
-}
-
-configure<IdeaModel> {
-    module {
-        isDownloadJavadoc = true
-        isDownloadSources = true
-    }
-}
 
 repositories {
     mavenCentral()
@@ -81,11 +37,8 @@ dependencies {
     implementation("org.bouncycastle:bcprov-jdk18on:1.78.1")
     implementation("org.bouncycastle:bcpkix-jdk18on:1.78.1")
     implementation("org.pgpainless:pgpainless-core:1.6.7")
-    implementation("org.springframework.boot:spring-boot-starter-data-jpa") {
-        exclude(group = "org.springframework.boot", module = "spring-boot-starter-logging")
-    }
     implementation("org.xerial:sqlite-jdbc")
-    implementation("org.hibernate.orm:hibernate-community-dialects")
+    implementation("com.dbeaver.jdbc:com.dbeaver.jdbc.driver.libsql:1.0.2")
 
     implementation("org.springframework.boot:spring-boot-starter-web") {
         exclude(group = "org.springframework.boot", module = "spring-boot-starter-logging")
@@ -124,6 +77,56 @@ dependencies {
         exclude(group = "org.springframework.boot", module = "spring-boot-starter-logging")
     }
     testImplementation("org.junit.platform:junit-platform-launcher")
+}
+
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_21
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(21))
+    }
+}
+
+graalvmNative {
+    binaries {
+        all {
+            javaLauncher.set(javaToolchains.launcherFor {
+                languageVersion.set(JavaLanguageVersion.of(21))
+                vendor.set(JvmVendorSpec.GRAAL_VM)
+            })
+        }
+    }
+}
+
+kotlin {
+    jvmToolchain {
+        languageVersion.set(JavaLanguageVersion.of(21))
+    }
+    jvmToolchain(21)
+}
+
+sourceSets {
+    main {
+        java { srcDirs("src/main/java") }
+        kotlin { srcDirs("src/main/kotlin") }
+    }
+    test {
+        java { srcDirs("src/test/java") }
+        kotlin { srcDirs("src/test/kotlin") }
+    }
+}
+
+configurations {
+    compileOnly {
+        extendsFrom(configurations.annotationProcessor.get())
+    }
+}
+
+configure<IdeaModel> {
+    module {
+        isDownloadJavadoc = true
+        isDownloadSources = true
+    }
 }
 
 tasks {
@@ -177,16 +180,4 @@ fun getVersions(): String {
         throw StopActionException("BASTET_VERSION file is empty")
     }
     return versionFromFile
-}
-
-hibernate {
-    enhancement {
-        enableAssociationManagement = true
-    }
-}
-
-allOpen {
-    annotation("jakarta.persistence.Entity")
-    annotation("jakarta.persistence.MappedSuperclass")
-    annotation("jakarta.persistence.Embeddable")
 }

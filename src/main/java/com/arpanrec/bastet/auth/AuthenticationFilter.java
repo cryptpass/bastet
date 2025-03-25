@@ -1,13 +1,13 @@
 package com.arpanrec.bastet.auth;
 
-import com.arpanrec.bastet.services.UserService;
+import com.arpanrec.bastet.ConfigService;
+import com.arpanrec.bastet.physical.Physical;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
@@ -29,11 +29,11 @@ public class AuthenticationFilter extends OncePerRequestFilter {
     private final UserDetailsService userDetailsService;
 
     public AuthenticationFilter(@Autowired AuthenticationManagerImpl authenticationManagerImpl,
-                                @Autowired UserService userService,
-                                @Value("${bastet.auth-header-key:Authorization}") String headerKey) {
-        this.headerKey = headerKey;
+                                @Autowired Physical physical,
+                                @Autowired ConfigService configService) {
+        this.headerKey = configService.getConfig().server().authHeaderKey();
         this.authenticationManager = authenticationManagerImpl;
-        this.userDetailsService = userService;
+        this.userDetailsService = physical;
     }
 
     protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response,
@@ -53,7 +53,13 @@ public class AuthenticationFilter extends OncePerRequestFilter {
         UserDetails user = userDetailsService.loadUserByUsername(username);
 
         Authentication authenticated = authenticationManager
-            .authenticate(AuthenticationImpl.builder().providedPassword(providedPassword).user(user).build());
+            .authenticate(
+                AuthenticationImpl
+                    .builder()
+                    .providedPassword(providedPassword)
+                    .user(user)
+                    .build()
+            );
 
         SecurityContextHolder.getContext().setAuthentication(authenticated);
 

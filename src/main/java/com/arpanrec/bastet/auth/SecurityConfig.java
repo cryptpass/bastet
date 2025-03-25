@@ -1,6 +1,6 @@
 package com.arpanrec.bastet.auth;
 
-import com.arpanrec.bastet.model.Role;
+import com.arpanrec.bastet.physical.User;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -54,7 +54,7 @@ public class SecurityConfig {
 
         http.authorizeHttpRequests(authorizeRequests -> authorizeRequests
             .requestMatchers(getPermitAllRequestMatchers()).permitAll()
-            .requestMatchers(new AntPathRequestMatcher("/api/v1/admin/**")).hasAuthority("ROLE_" + Role.Type.ADMIN.name())
+            .requestMatchers(new AntPathRequestMatcher("/api/v1/admin/**")).hasAuthority("ROLE_" + User.Role.Type.ADMIN.name())
             .anyRequest().authenticated()
         );
 

@@ -2,9 +2,9 @@ package com.arpanrec.bastet.encryption
 
 import com.arpanrec.bastet.exceptions.CaughtException
 
-class Encryptor {
+object Encryptor {
 
-    private final val aes256cbc = AES256CBC()
+    private val aes256cbc = AES256CBC()
 
     fun generateKey(): String {
         return aes256cbc.generateKey()

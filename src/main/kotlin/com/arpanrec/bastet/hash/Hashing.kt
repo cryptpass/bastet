@@ -3,7 +3,7 @@ package com.arpanrec.bastet.hash
 import com.arpanrec.bastet.exceptions.CaughtException
 import org.springframework.security.crypto.password.PasswordEncoder
 
-class Hashing : PasswordEncoder {
+object Hashing : PasswordEncoder {
 
     private val sha256: Sha256 = Sha256()
     private val argon2: Argon2 = Argon2()

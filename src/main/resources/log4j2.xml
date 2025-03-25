@@ -18,10 +18,10 @@
         <Property name="log_path">${env:BASTET_LOG_DIR:-logs}</Property>
     </Properties>
     <Appenders>
-        <Console name="application-deep-to-console" target="SYSTEM_OUT">
+        <Console name="console-logger" target="SYSTEM_OUT">
             <PatternLayout pattern="${log_pattern_console}"/>
         </Console>
-        <RollingFile name="application-to-file" append="true" immediateFlush="true"
+        <RollingFile name="file-logger" append="true" immediateFlush="true"
                      fileName="${log_path}/app.log"
                      filePattern="${log_path}/%d{MM-dd-yyyy}/app-%d{MM-dd-yyyy}-%i.log.gz">
             <PatternLayout>
@@ -32,7 +32,7 @@
             </Policies>
             <DefaultRolloverStrategy max="20"/>
         </RollingFile>
-        <RollingFile name="application-test-to-file" append="true" immediateFlush="true"
+        <RollingFile name="test-logger" append="true" immediateFlush="true"
                      fileName="${log_path}/test.log"
                      filePattern="${log_path}/%d{MM-dd-yyyy}/test-%d{MM-dd-yyyy}-%i.log.gz">
             <PatternLayout>
@@ -43,7 +43,7 @@
             </Policies>
             <DefaultRolloverStrategy max="20"/>
         </RollingFile>
-        <RollingFile name="application-deep-to-file" append="true" immediateFlush="true"
+        <RollingFile name="trace-logger" append="true" immediateFlush="true"
                      fileName="${log_path}/deep.log"
                      filePattern="${log_path}/%d{MM-dd-yyyy}/deep-%d{MM-dd-yyyy}-%i.log.gz">
             <PatternLayout>
@@ -54,7 +54,7 @@
             </Policies>
             <DefaultRolloverStrategy max="20"/>
         </RollingFile>
-        <RollingFile name="application-error-to-file" append="true" immediateFlush="true"
+        <RollingFile name="error-logger" append="true" immediateFlush="true"
                      fileName="${log_path}/error.log"
                      filePattern="${log_path}/%d{MM-dd-yyyy}/error-%d{MM-dd-yyyy}-%i.log.gz">
             <PatternLayout>
@@ -68,27 +68,27 @@
     </Appenders>
     <Loggers>
         <Logger name="${log_source_application_test_logger_name}" additivity="false" level="trace">
-            <AppenderRef ref="application-deep-to-console"/>
-            <AppenderRef ref="application-deep-to-file" level="trace"/>
-            <AppenderRef ref="application-to-file" level="info"/>
-            <AppenderRef ref="application-error-to-file" level="error"/>
-            <AppenderRef ref="application-test-to-file" level="trace"/>
+            <AppenderRef ref="console-logger"/>
+            <AppenderRef ref="trace-logger" level="trace"/>
+            <AppenderRef ref="file-logger" level="info"/>
+            <AppenderRef ref="error-logger" level="error"/>
+            <AppenderRef ref="test-logger" level="trace"/>
         </Logger>
         <Logger name="${log_source_application_root_logger_name}" additivity="false" level="trace">
-            <AppenderRef ref="application-deep-to-console"/>
-            <AppenderRef ref="application-to-file" level="info"/>
-            <AppenderRef ref="application-deep-to-file" level="trace"/>
-            <AppenderRef ref="application-error-to-file" level="error"/>
+            <AppenderRef ref="console-logger"/>
+            <AppenderRef ref="file-logger" level="info"/>
+            <AppenderRef ref="trace-logger" level="trace"/>
+            <AppenderRef ref="error-logger" level="error"/>
         </Logger>
-        <Logger name="org.springframework" additivity="false" level="info">
-            <AppenderRef ref="application-deep-to-console"/>
-            <AppenderRef ref="application-to-file" level="info"/>
-            <AppenderRef ref="application-error-to-file" level="error"/>
+        <Logger name="org.springframework" additivity="false" level="warn">
+            <AppenderRef ref="console-logger" level="error"/>
+            <AppenderRef ref="file-logger" level="warn"/>
+            <AppenderRef ref="error-logger" level="error"/>
         </Logger>
         <Root level="warn">
-            <AppenderRef ref="application-deep-to-console"/>
-            <AppenderRef ref="application-to-file" level="warn"/>
-            <AppenderRef ref="application-error-to-file" level="error"/>
+            <AppenderRef ref="console-logger" level="error"/>
+            <AppenderRef ref="file-logger" level="warn"/>
+            <AppenderRef ref="error-logger" level="error"/>
         </Root>
     </Loggers>
 </Configuration>

@@ -1,64 +1,73 @@
 package com.arpanrec.bastet;
 
-
 import com.arpanrec.bastet.exceptions.CaughtException;
-import com.arpanrec.bastet.model.Privilege;
-import com.arpanrec.bastet.model.Role;
-import com.arpanrec.bastet.model.User;
-import com.arpanrec.bastet.services.UserService;
+import com.arpanrec.bastet.physical.Physical;
+import com.arpanrec.bastet.physical.User;
 import java.util.List;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.web.server.Ssl;
+import org.springframework.boot.web.server.WebServerFactoryCustomizer;
+import org.springframework.boot.web.servlet.server.ConfigurableServletWebServerFactory;
+import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
 public class Bootstrap implements CommandLineRunner {
+    private final ConfigService configService;
+    private final Physical physical;
 
-    private final UserService userService;
-    private final String rootUserPassword;
-
-    public Bootstrap(@Autowired UserService userService,
-                     @Value("${bastet.root-password:#{null}}") String rootUserPassword) {
-        this.rootUserPassword = rootUserPassword;
-        this.userService = userService;
+    public Bootstrap(@Autowired ConfigService configService,
+                     @Autowired Physical physical) {
+        this.configService = configService;
+        this.physical = physical;
     }
 
     @Override
-    public void run(String... args) throws Exception {
-        log.info("Starting bootstrap");
-        try {
-            this.createRootUser();
-        } catch (CaughtException e) {
-            throw new Exception("Bootstrap failed", e);
-        }
-        log.info("Bootstrap complete");
+    public void run(String... args) {
+        log.info("Starting Bastet.");
+        createRootUser();
     }
 
     private void createRootUser() {
-        Optional<User> rootUserMaybe = userService.findByUsername("root");
+        Optional<User> rootUserMaybe = physical.readUser("root");
         User rootUser = rootUserMaybe.orElseGet(User::new);
-        Privilege rootPrivilege = new Privilege(Privilege.Type.SUDO);
-        Role rootRole = new Role(Role.Type.ADMIN, List.of(rootPrivilege));
+        User.Privilege rootPrivilege = new User.Privilege(User.Privilege.Type.SUDO);
+        User.Role rootRole = new User.Role(User.Role.Type.ADMIN, List.of(rootPrivilege));
         rootUser.setRoles(List.of(rootRole));
         rootUser.setUsername("root");
         rootUser.setEnabled(true);
-        rootUser.setAccountNonExpired(true);
-        rootUser.setAccountNonLocked(true);
-        rootUser.setCredentialsNonExpired(true);
-        if (rootUserPassword == null && rootUser.getPassword() == null) {
+        if (configService.getConfig().server().rootPassword() == null && rootUser.getPassword() == null) {
             throw new CaughtException("Root user password not set");
         }
-        if (rootUserPassword != null) {
+        if (configService.getConfig().server().rootPassword() != null) {
             log.info("Resetting root user password");
-            rootUser.setPassword(rootUserPassword);
+            rootUser.setPassword(configService.getConfig().server().rootPassword());
         } else {
             log.info("Not resetting root user password");
         }
-        userService.saveUser(rootUser);
+        physical.writeUser(rootUser);
         log.info("Root user settings complete, root user: {}", rootUser);
+    }
+
+    @Bean
+    public WebServerFactoryCustomizer<ConfigurableServletWebServerFactory> webServerFactoryCustomizer() {
+        log.debug("Starting web server factory.");
+        return (configurableServletWebServerFactory -> {
+            ConfigService.Config.Server serverConfig = configService.getConfig().server();
+            configurableServletWebServerFactory.setContextPath("");
+            configurableServletWebServerFactory.setPort(serverConfig.port());
+            log.info("Web server port {}", serverConfig.port());
+            if (serverConfig.sslCertPem() != null && serverConfig.sslKeyPem() != null) {
+                Ssl ssl = new Ssl();
+                ssl.setCertificate(serverConfig.sslCertPem());
+                ssl.setCertificatePrivateKey(serverConfig.sslKeyPem());
+                configurableServletWebServerFactory.setSsl(ssl);
+                log.info("Server configured for SSL");
+            }
+        });
     }
 }

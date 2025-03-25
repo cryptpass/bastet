@@ -1,7 +1,7 @@
 package com.arpanrec.bastet.auth;
 
 import com.arpanrec.bastet.hash.Hashing;
-import com.arpanrec.bastet.model.User;
+import com.arpanrec.bastet.physical.User;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class AuthenticationProviderImpl implements AuthenticationProvider {
 
-    private final PasswordEncoder encoder = new Hashing();
+    private final PasswordEncoder encoder = Hashing.INSTANCE;
 
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
@@ -24,6 +24,7 @@ public class AuthenticationProviderImpl implements AuthenticationProvider {
         if (!user.isEnabled() || !user.isAccountNonExpired() || !user.isAccountNonLocked()
             || !user.isCredentialsNonExpired() || ((AuthenticationImpl) authentication).getProvidedPassword() == null) {
             authentication.setAuthenticated(false);
+            log.trace("User authentication set to false for {}", authentication.getName());
             return authentication;
         }
         if (encoder.matches(((AuthenticationImpl) authentication).getProvidedPassword(),

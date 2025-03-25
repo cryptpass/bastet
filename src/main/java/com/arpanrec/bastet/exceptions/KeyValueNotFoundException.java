@@ -13,5 +13,4 @@ public class KeyValueNotFoundException extends RuntimeException {
     public KeyValueNotFoundException(String message) {
         super(message);
     }
-
 }

@@ -8,6 +8,7 @@
       image_name: bastet
       container_name: bastet
       bastet_version: "{{ lookup('file', (playbook_dir | dirname) + '/BASTET_VERSION', errors='strict') }}"
+      bastet_port: "{{ bastet_config['server']['port'] | int }}"
   # roles:
   #     - role: geerlingguy.docker  # install the role from tasks after installing python3 and procps
   tasks:
@@ -46,20 +47,10 @@
 
       - name: Copy resources
         ansible.builtin.copy:
-            src: "{{ item.src | default(omit) }}"
-            dest: "{{ item.dest }}"
-            content: "{{ item.content | default(omit) }}"
+            src: "{{ playbook_dir | dirname }}/build/libs/bastet-boot-{{ bastet_version }}.jar"
+            dest: "{{ bastet_data_dir }}/app.jar"
             remote_src: false
             mode: "0755"
-        with_items:
-            - src: "{{ playbook_dir | dirname }}/build/libs/bastet-boot-{{ bastet_version }}.jar"
-              dest: "{{ bastet_data_dir }}/app.jar"
-            - content: "{{ ssl_key_pem }}"
-              dest: "{{ bastet_data_dir }}/private.pem"
-            - content: "{{ ssl_cert_pem }}"
-              dest: "{{ bastet_data_dir }}/certificate.pem"
-            - content: "{{ spring_boot_application_yaml | to_nice_yaml }}"
-              dest: "{{ bastet_data_dir }}/application.yml"
 
       - name: Allow ufw
         community.general.ufw:
@@ -79,12 +70,13 @@
             env:
                 TZ: Asia/Kolkata
                 BASTET_LOG_DIR: "{{ bastet_data_dir }}/logs"
+                BASTET_CONFIG: "{{ bastet_config | to_json }}"
             ports:
                 - "{{ bastet_port }}:{{ bastet_port }}"
             volumes:
                 - "{{ bastet_data_dir }}:{{ bastet_data_dir }}"
+                - /etc/localtime:/etc/localtime:ro
             command:
                 - java
                 - "-jar"
                 - "{{ bastet_data_dir }}/app.jar"
-                - "--spring.config.location={{ bastet_data_dir }}/application.yml"

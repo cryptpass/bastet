@@ -1,20 +1,9 @@
 {
     "properties": [
         {
-            "name": "bastet.auth-header-key",
+            "name": "bastet-config",
             "type": "java.lang.String",
-            "description": "Header used to pass the authentication token to the service.",
-            "defaultValue": "Authorization"
-        },
-        {
-            "name": "bastet.root-password",
-            "type": "java.lang.String",
-            "description": "Root password for the service."
-        },
-        {
-            "name": "bastet.unlock-key",
-            "type": "java.lang.String",
-            "description": "Master key to lock encryption keys."
+            "description": "Path to config json file, or config json string."
         }
     ]
 }
