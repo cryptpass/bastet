@@ -2,75 +2,6 @@
 
 A basic CRUD rest api wrapper for managing configuration and secrets.
 
-## CRUD API: V1
-
-route: /api/v1
-
-### API: V1: admin
-
-All the data is stored with zero knowledge encryption.
-You can provide/change the encryption key with the unlock endpoint.
-
-route: /admin
-
-- unlock -> PUT /unlock -> returns 201 status code
-
-  body:
-
-    ```json
-    {
-        "key": "key"
-    }
-    ```
-
-- read user -> GET /user/{username} -> returns 200 status code
-
-- write user -> PUT /user/{username} -> returns 201 status code
-
-  body:
-
-    ```json
-    {
-        "email": null,
-        "password": "test123",
-        "roles": [
-            {
-                "name": "ADMIN",
-                "privileges": [
-                    {
-                        "name": "SUDO"
-                    }
-                ]
-            }
-        ],
-        "lastLogin": 0,
-        "locked": false,
-        "enabled": true
-    }
-    ```
-
-- list keys -> GET /list/keys/{key} -> returns 200 status code with a list of keys
-
-### API: V1: secrets
-
-route: /secrets
-
-It performs only 3 operations: `read`, `write`, and `delete`.
-
-- read -> GET /{key} -> returns the secret value with 200 status code
-
-- write -> POST /{key} -> returns 201 status code
-
-  body:
-
-    ```json
-    {
-        "secret1": "value1"
-    }
-    ```
-
-- delete -> DELETE /{key} -> returns 204 status code
-
 ## Configuration
 
 env vars:
@@ -140,9 +71,79 @@ So, the sqlite file should be in `/app/bastet/data`. or else I need to change th
         }
     ```
 
+## CRUD API: V1
+
+route: /api/v1
+
+### API: V1: admin
+
+All the data is stored with zero knowledge encryption.
+You can provide/change the encryption key with the unlock endpoint.
+
+route: /admin
+
+- unlock -> PUT /unlock -> returns 201 status code
+
+  body:
+
+    ```json
+    {
+        "key": "key"
+    }
+    ```
+
+- read user -> GET /user/{username} -> returns 200 status code
+
+- write user -> PUT /user/{username} -> returns 201 status code
+
+  body:
+
+    ```json
+    {
+        "email": null,
+        "password": "test123",
+        "roles": [
+            {
+                "name": "ADMIN",
+                "privileges": [
+                    {
+                        "name": "SUDO"
+                    }
+                ]
+            }
+        ],
+        "lastLogin": 0,
+        "locked": false,
+        "enabled": true
+    }
+    ```
+
+- list keys -> GET /list/keys/{key} -> returns 200 status code with a list of keys
+
+### API: V1: secrets
+
+route: /secrets
+
+It performs only 3 operations: `read`, `write`, and `delete`.
+
+- read -> GET /{key} -> returns the secret value with 200 status code
+
+- write -> POST /{key} -> returns 201 status code
+
+  body:
+
+    ```json
+    {
+        "secret1": "value1"
+    }
+    ```
+
+- delete -> DELETE /{key} -> returns 204 status code
+
 ## Deployment
 
 Add all the variables in `ansible/inventory.yml` and run the following command.
+
 Ansible vault password is in bitwarden `ansible/vault_pass.sh`.
 
 In `ansible/inventory.yml`, the following variables are required.
