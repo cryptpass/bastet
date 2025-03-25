@@ -8,6 +8,7 @@ env vars:
 
 - BASTET_CONFIG: Configuration in json format or Path to the configuration file, default is bastet.json.
 - BASTET_LOG_LEVEL: Log level, default is INFO. [Reference](https://logging.apache.org/log4j/2.x/manual/customloglevels.html)
+- BASTET_LOG_DIR: Log directory, default is /tmp/bastet/logs.
 
 ```json
 {
