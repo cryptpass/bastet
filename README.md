@@ -24,8 +24,8 @@ env vars:
     "port": "Port, default is 8080",
     "root-password": "Root password, Mandatory for the first time",
     "auth-header-key": "Auth header key, default is Authorization",
-    "ssl-key-pem": "PEM key",
-    "ssl-cert-pem": "PEM cert"
+    "ssl-key-pem": "PEM key, if missing then server will run in http",
+    "ssl-cert-pem": "PEM cert, if missing then server will run in http",
 }
 ```
 
