@@ -76,6 +76,7 @@ It performs only 3 operations: `read`, `write`, and `delete`.
 env vars:
 
 - BASTET_CONFIG: Configuration in json format or Path to the configuration file, default is bastet.json.
+- BASTET_LOG_LEVEL: Log level, default is INFO. [Reference](https://logging.apache.org/log4j/2.x/manual/customloglevels.html)
 
 ```json
 {

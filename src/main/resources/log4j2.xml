@@ -67,28 +67,29 @@
         </RollingFile>
     </Appenders>
     <Loggers>
-        <Logger name="${log_source_application_test_logger_name}" additivity="false" level="trace">
+        <Logger name="${log_source_application_test_logger_name}" additivity="false" level="TRACE">
             <AppenderRef ref="console-logger"/>
-            <AppenderRef ref="trace-logger" level="trace"/>
-            <AppenderRef ref="file-logger" level="info"/>
-            <AppenderRef ref="error-logger" level="error"/>
-            <AppenderRef ref="test-logger" level="trace"/>
+            <AppenderRef ref="trace-logger" level="TRACE"/>
+            <AppenderRef ref="file-logger" level="INFO"/>
+            <AppenderRef ref="error-logger" level="ERROR"/>
+            <AppenderRef ref="test-logger" level="TRACE"/>
         </Logger>
-        <Logger name="${log_source_application_root_logger_name}" additivity="false" level="trace">
+        <Logger name="${log_source_application_root_logger_name}" additivity="false"
+                level="${env:BASTET_LOG_LEVEL:-INFO}">
             <AppenderRef ref="console-logger"/>
-            <AppenderRef ref="file-logger" level="info"/>
-            <AppenderRef ref="trace-logger" level="trace"/>
-            <AppenderRef ref="error-logger" level="error"/>
+            <AppenderRef ref="file-logger" level="INFO"/>
+            <AppenderRef ref="trace-logger" level="TRACE"/>
+            <AppenderRef ref="error-logger" level="ERROR"/>
         </Logger>
-        <Logger name="org.springframework" additivity="false" level="warn">
-            <AppenderRef ref="console-logger" level="error"/>
-            <AppenderRef ref="file-logger" level="warn"/>
-            <AppenderRef ref="error-logger" level="error"/>
+        <Logger name="org.springframework" additivity="false" level="INFO">
+            <AppenderRef ref="console-logger"/>
+            <AppenderRef ref="file-logger" level="INFO"/>
+            <AppenderRef ref="error-logger" level="ERROR"/>
         </Logger>
-        <Root level="warn">
-            <AppenderRef ref="console-logger" level="error"/>
-            <AppenderRef ref="file-logger" level="warn"/>
-            <AppenderRef ref="error-logger" level="error"/>
+        <Root level="INFO">
+            <AppenderRef ref="console-logger"/>
+            <AppenderRef ref="file-logger" level="INFO"/>
+            <AppenderRef ref="error-logger" level="ERROR"/>
         </Root>
     </Loggers>
 </Configuration>
