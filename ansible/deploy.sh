@@ -7,6 +7,7 @@ Setup Bastet: \
 %s\n--------------------------------------------------------------------------------\n\n" "$(date)" "$*"
 }
 
+rm -rf build logs tmp bin
 gradle clean bootJar -x test
 
 log_message "Installing required collections and roles"
