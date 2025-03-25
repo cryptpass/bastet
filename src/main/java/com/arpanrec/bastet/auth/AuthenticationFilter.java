@@ -31,7 +31,11 @@ public class AuthenticationFilter extends OncePerRequestFilter {
     public AuthenticationFilter(@Autowired AuthenticationManagerImpl authenticationManagerImpl,
                                 @Autowired Physical physical,
                                 @Autowired ConfigService configService) {
-        this.headerKey = configService.getConfig().server().authHeaderKey();
+        String headerKey = configService.getConfig().server().authHeaderKey();
+        if (headerKey == null) {
+            headerKey = "Authorization";
+        }
+        this.headerKey = headerKey;
         this.authenticationManager = authenticationManagerImpl;
         this.userDetailsService = physical;
     }

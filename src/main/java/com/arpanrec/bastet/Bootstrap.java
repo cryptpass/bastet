@@ -59,8 +59,12 @@ public class Bootstrap implements CommandLineRunner {
         return (configurableServletWebServerFactory -> {
             ConfigService.Config.Server serverConfig = configService.getConfig().server();
             configurableServletWebServerFactory.setContextPath("");
-            configurableServletWebServerFactory.setPort(serverConfig.port());
-            log.info("Web server port {}", serverConfig.port());
+            int port = serverConfig.port();
+            if (port == 0) {
+                port = 8080;
+            }
+            configurableServletWebServerFactory.setPort(port);
+            log.info("Web server port {}", port);
             if (serverConfig.sslCertPem() != null && serverConfig.sslKeyPem() != null) {
                 Ssl ssl = new Ssl();
                 ssl.setCertificate(serverConfig.sslCertPem());

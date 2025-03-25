@@ -88,9 +88,9 @@ env vars:
 
 ```json
 {
-    "port": "Port",
-    "root-password": "Root password",
-    "auth-header-key": "Auth header key",
+    "port": "Port, default is 8080",
+    "root-password": "Root password, Mandatory for the first time",
+    "auth-header-key": "Auth header key, default is Authorization",
     "ssl-key-pem": "PEM key",
     "ssl-cert-pem": "PEM cert"
 }
@@ -103,9 +103,9 @@ So, the sqlite file should be in `/app/bastet/data`. or else I need to change th
 
 ```json
 {
-    "type": "StorageType",
+    "type": "StorageType, Mandatory",
     "master-key": "<Base 64 encoded 32 byte key>:$:<Base 64 encoded 16 byte IV>, this is not recommended, set this key by using the unlock endpoint. Is Set to `random` then a random key will be generated.",
-    "config": {}
+    "config": "{}, Storage configuration, Mandatory"
 }
 ```
 
@@ -126,7 +126,7 @@ So, the sqlite file should be in `/app/bastet/data`. or else I need to change th
         }
     ```
 
-- `postgres`: Storage in a postgres database. (Because I also want to play fancy corporate unicorn startup idea with
+- `POSTGRES`: Storage in a postgres database. (Because I also want to play fancy corporate unicorn startup idea with
   horizontal scaling for my 3 users)
 
     ```json
