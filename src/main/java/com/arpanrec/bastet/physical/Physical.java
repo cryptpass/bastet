@@ -137,8 +137,18 @@ public class Physical implements UserDetailsService {
     }
 
     public void setMasterKey(String masterKey) {
-        this.masterKey = masterKey;
-        this.masterKeyHash = hashing.encode(masterKey);
+        if (masterKey == null || masterKey.isEmpty()) {
+            throw new BadClient("Master key cannot be null");
+        }
+
+        if ("random".equals(masterKey)) {
+            this.masterKey = encryptor.generateKey();
+            log.info("Generated random master key");
+        } else {
+            this.masterKey = masterKey;
+            log.info("Master key set");
+        }
+        this.masterKeyHash = hashing.encode(this.masterKey);
     }
 
     public Optional<User> readUser(String username) {

@@ -104,7 +104,7 @@ So, the sqlite file should be in `/app/bastet/data`. or else I need to change th
 ```json
 {
     "type": "StorageType",
-    "master-key": "<Base 64 encoded 32 byte key>:$:<Base 64 encoded 16 byte IV>, this is not recommended, set this key by using the unlock endpoint",
+    "master-key": "<Base 64 encoded 32 byte key>:$:<Base 64 encoded 16 byte IV>, this is not recommended, set this key by using the unlock endpoint. Is Set to `random` then a random key will be generated.",
     "config": {}
 }
 ```

@@ -15,15 +15,15 @@
         <Property name="log_pattern_archive_file">
             %date{ISO8601}{GMT+5:30}-host[${hostName}]-pid[%pid]-logid[%u]-[%6level]-thread-id-priority-name[%threadId-%threadPriority-%threadName]-logger[%logger]-(%location)%n%highlight{%message%n%throwable{full}}
         </Property>
-        <Property name="log_path">${env:BASTET_LOG_DIR:-logs}</Property>
+        <Property name="log_dir">${env:BASTET_LOG_DIR:-/tmp/bastet/logs}</Property>
     </Properties>
     <Appenders>
         <Console name="console-logger" target="SYSTEM_OUT">
             <PatternLayout pattern="${log_pattern_console}"/>
         </Console>
         <RollingFile name="file-logger" append="true" immediateFlush="true"
-                     fileName="${log_path}/app.log"
-                     filePattern="${log_path}/%d{MM-dd-yyyy}/app-%d{MM-dd-yyyy}-%i.log.gz">
+                     fileName="${log_dir}/app.log"
+                     filePattern="${log_dir}/%d{MM-dd-yyyy}/app-%d{MM-dd-yyyy}-%i.log.gz">
             <PatternLayout>
                 <Pattern>${log_pattern_archive_file}</Pattern>
             </PatternLayout>
@@ -33,8 +33,8 @@
             <DefaultRolloverStrategy max="20"/>
         </RollingFile>
         <RollingFile name="test-logger" append="true" immediateFlush="true"
-                     fileName="${log_path}/test.log"
-                     filePattern="${log_path}/%d{MM-dd-yyyy}/test-%d{MM-dd-yyyy}-%i.log.gz">
+                     fileName="${log_dir}/test.log"
+                     filePattern="${log_dir}/%d{MM-dd-yyyy}/test-%d{MM-dd-yyyy}-%i.log.gz">
             <PatternLayout>
                 <Pattern>${log_pattern_archive_file}</Pattern>
             </PatternLayout>
@@ -44,8 +44,8 @@
             <DefaultRolloverStrategy max="20"/>
         </RollingFile>
         <RollingFile name="trace-logger" append="true" immediateFlush="true"
-                     fileName="${log_path}/deep.log"
-                     filePattern="${log_path}/%d{MM-dd-yyyy}/deep-%d{MM-dd-yyyy}-%i.log.gz">
+                     fileName="${log_dir}/deep.log"
+                     filePattern="${log_dir}/%d{MM-dd-yyyy}/deep-%d{MM-dd-yyyy}-%i.log.gz">
             <PatternLayout>
                 <Pattern>${log_pattern_archive_file}</Pattern>
             </PatternLayout>
@@ -55,8 +55,8 @@
             <DefaultRolloverStrategy max="20"/>
         </RollingFile>
         <RollingFile name="error-logger" append="true" immediateFlush="true"
-                     fileName="${log_path}/error.log"
-                     filePattern="${log_path}/%d{MM-dd-yyyy}/error-%d{MM-dd-yyyy}-%i.log.gz">
+                     fileName="${log_dir}/error.log"
+                     filePattern="${log_dir}/%d{MM-dd-yyyy}/error-%d{MM-dd-yyyy}-%i.log.gz">
             <PatternLayout>
                 <Pattern>${log_pattern_archive_file}</Pattern>
             </PatternLayout>

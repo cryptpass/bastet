@@ -13,9 +13,6 @@ class PhysicalTest {
 
     public PhysicalTest(@Autowired Physical physical) {
         this.physical = physical;
-//        final com.arpanrec.bastet.encryption.Encryptor encryptor = com.arpanrec.bastet.encryption.Encryptor.INSTANCE;
-//        String masterKey = encryptor.generateKey();
-//        this.physical.setMasterKey(masterKey);
     }
 
     @Test

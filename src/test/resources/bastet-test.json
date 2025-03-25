@@ -1,0 +1,14 @@
+{
+    "physical": {
+        "type": "SQLITE",
+        "master-key": "random",
+        "config": {
+            "path": "bastet.sqlite3"
+        }
+    },
+    "server": {
+        "port": 8081,
+        "root-password": "test",
+        "auth-header-key": "Authorization"
+    }
+}
