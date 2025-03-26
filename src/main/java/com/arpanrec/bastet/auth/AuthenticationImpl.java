@@ -1,8 +1,6 @@
 package com.arpanrec.bastet.auth;
 
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -11,7 +9,7 @@ import javax.security.auth.Subject;
 import java.io.Serial;
 import java.util.Collection;
 
-@Builder
+@Data
 public class AuthenticationImpl implements Authentication {
 
     @Serial
@@ -21,23 +19,34 @@ public class AuthenticationImpl implements Authentication {
 
     private UserDetails user;
 
-    @Getter
-    @Setter
     private CharSequence providedPassword;
 
+    @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
+        if (user == null) {
+            return null;
+        }
         return user.getAuthorities();
     }
 
+    @Override
     public Object getCredentials() {
+        if (user == null) {
+            return null;
+        }
         return this.user.getPassword();
     }
 
+    @Override
     public Object getDetails() {
         return user;
     }
 
+    @Override
     public Object getPrincipal() {
+        if (user == null) {
+            return null;
+        }
         return this.user.getUsername();
     }
 
@@ -53,6 +62,9 @@ public class AuthenticationImpl implements Authentication {
 
     @Override
     public String getName() {
+        if (user == null) {
+            return null;
+        }
         return this.user.getUsername();
     }
 

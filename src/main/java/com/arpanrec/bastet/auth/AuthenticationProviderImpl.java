@@ -4,10 +4,10 @@ import com.arpanrec.bastet.hash.Hashing;
 import com.arpanrec.bastet.physical.User;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationProvider;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
@@ -19,20 +19,27 @@ public class AuthenticationProviderImpl implements AuthenticationProvider {
 
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
+        if (authentication.getDetails() == null) {
+            authentication.setAuthenticated(false);
+            return authentication;
+        }
+
         log.trace("User authentication started for {}", authentication.getName());
-        User user = (User) authentication.getDetails();
+        UserDetails user = (User) authentication.getDetails();
+        CharSequence providedPassword = ((AuthenticationImpl) authentication).getProvidedPassword();
+
         if (!user.isEnabled() || !user.isAccountNonExpired() || !user.isAccountNonLocked()
-            || !user.isCredentialsNonExpired() || ((AuthenticationImpl) authentication).getProvidedPassword() == null) {
+            || !user.isCredentialsNonExpired() || providedPassword == null) {
             authentication.setAuthenticated(false);
             log.trace("User authentication set to false for {}", authentication.getName());
             return authentication;
         }
-        if (encoder.matches(((AuthenticationImpl) authentication).getProvidedPassword(),
-            (String) authentication.getCredentials())) {
+        if (encoder.matches(providedPassword, (String) authentication.getCredentials())) {
             log.trace("User {} authenticated", authentication.getName());
             authentication.setAuthenticated(true);
         } else {
-            throw new BadCredentialsException("Wrong password");
+            log.trace("User {} authentication failed", authentication.getName());
+            authentication.setAuthenticated(false);
         }
         return authentication;
     }

@@ -24,18 +24,16 @@ import java.util.Base64;
 @Component
 public class AuthenticationFilter extends OncePerRequestFilter {
 
-    private final String headerKey;
+    private String headerKey = "Authorization";
     private final AuthenticationManager authenticationManager;
     private final UserDetailsService userDetailsService;
 
     public AuthenticationFilter(@Autowired AuthenticationManagerImpl authenticationManagerImpl,
-                                @Autowired Physical physical,
-                                @Autowired ConfigService configService) {
+                                @Autowired Physical physical, @Autowired ConfigService configService) {
         String headerKey = configService.getConfig().server().authHeaderKey();
-        if (headerKey == null) {
-            headerKey = "Authorization";
+        if (headerKey != null && !headerKey.isBlank()) {
+            this.headerKey = headerKey;
         }
-        this.headerKey = headerKey;
         this.authenticationManager = authenticationManagerImpl;
         this.userDetailsService = physical;
     }
@@ -43,30 +41,27 @@ public class AuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response,
                                     @NonNull FilterChain filterChain) throws ServletException, IOException {
 
-        var base64Cred = request.getHeader(headerKey);
-        if (base64Cred == null) {
-            filterChain.doFilter(request, response);
-            return;
+        AuthenticationImpl authentication = new AuthenticationImpl();
+        String token = request.getHeader(headerKey);
+        if (token != null) {
+            setCredentials(token, authentication);
         }
-        log.trace("headerKey: {}, base64Cred: {}", headerKey, base64Cred);
-
-        String[] credential = new String(Base64.getDecoder().decode(base64Cred.substring(6))).split(":");
-        String username = credential[0];
-        String providedPassword = credential[1];
-
-        UserDetails user = userDetailsService.loadUserByUsername(username);
-
-        Authentication authenticated = authenticationManager
-            .authenticate(
-                AuthenticationImpl
-                    .builder()
-                    .providedPassword(providedPassword)
-                    .user(user)
-                    .build()
-            );
-
+        Authentication authenticated = authenticationManager.authenticate(authentication);
         SecurityContextHolder.getContext().setAuthentication(authenticated);
-
         filterChain.doFilter(request, response);
+    }
+
+    private void setCredentials(String basicAuthToken, AuthenticationImpl authentication) {
+        try {
+            log.trace("basicAuthToken: {}", basicAuthToken);
+            String[] credential = new String(Base64.getDecoder().decode(basicAuthToken.substring(6))).split(":");
+            String username = credential[0];
+            String providedPassword = credential[1];
+            authentication.setProvidedPassword(providedPassword);
+            UserDetails user = userDetailsService.loadUserByUsername(username);
+            authentication.setUser(user);
+        } catch (Exception e) {
+            log.error("Error while decoding basic auth token", e);
+        }
     }
 }
