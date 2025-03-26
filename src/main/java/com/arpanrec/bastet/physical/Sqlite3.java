@@ -25,26 +25,4 @@ public class Sqlite3 extends SqlBackend {
         }
         return connection;
     }
-
-    @Override
-    protected void closeConnection(Connection connection) {
-        try {
-            if (connection != null) {
-                connection.close();
-            }
-        } catch (SQLException e) {
-            throw new PhysicalException("Failed to close connection", e);
-        }
-    }
-
-    @Override
-    protected void commitConnection(Connection connection) {
-        try {
-            if (connection != null) {
-                connection.commit();
-            }
-        } catch (SQLException e) {
-            throw new PhysicalException("Failed to commit connection", e);
-        }
-    }
 }
