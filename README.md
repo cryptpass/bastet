@@ -21,9 +21,9 @@ env vars:
 
 ```json
 {
-    "port": "Port, default is 8080",
+    "port": "Port, type: int, default: `8080`",
     "root-password": "Root password, Mandatory for the first time",
-    "auth-header-key": "Auth header key, default is Authorization",
+    "auth-header-key": "Auth header key, default is `Authorization`",
     "ssl-key-pem": "PEM key, if missing then server will run in http",
     "ssl-cert-pem": "PEM cert, if missing then server will run in http",
 }
@@ -46,7 +46,7 @@ So, the sqlite file should be in `/app/bastet/data`. or else I need to change th
 
     ```json
         {
-            "path": "path to the sqlite file"
+            "path": "path to the sqlite file, default is bastet.sqlite3"
         }
     ```
 
