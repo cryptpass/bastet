@@ -39,6 +39,7 @@ dependencies {
     implementation("org.pgpainless:pgpainless-core:1.6.7")
     implementation("org.xerial:sqlite-jdbc")
     implementation("org.postgresql:postgresql:42.7.5")
+    implementation("com.dbeaver.jdbc:com.dbeaver.jdbc.driver.libsql:1.0.2")
 
     implementation("org.springframework.boot:spring-boot-starter-web") {
         exclude(group = "org.springframework.boot", module = "spring-boot-starter-logging")
@@ -78,7 +79,6 @@ dependencies {
     }
     testImplementation("org.junit.platform:junit-platform-launcher")
 }
-
 
 java {
     sourceCompatibility = JavaVersion.VERSION_21
