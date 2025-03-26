@@ -51,6 +51,7 @@ public class AuthenticationProviderImpl implements AuthenticationProvider {
         if (authentication.isAuthenticated()) {
             user.setLastLogin(System.currentTimeMillis());
             physical.writeUser(user);
+            ((AuthenticationImpl) authentication).setUser(user);
         }
 
         return authentication;
