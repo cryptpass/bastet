@@ -5,7 +5,6 @@
   gather_facts: true
   tags: always
   vars:
-      container_name: bastet
       bastet_version: "{{ lookup('file', (playbook_dir | dirname) + '/BASTET_VERSION', errors='strict') }}"
       bastet_port: "{{ bastet_config['server']['port'] | int }}"
   # roles:
@@ -60,7 +59,7 @@
 
       - name: Run docker
         community.docker.docker_container:
-            name: "{{ container_name }}"
+            name: bastet
             image: eclipse-temurin:21-jre
             state: started
             recreate: true

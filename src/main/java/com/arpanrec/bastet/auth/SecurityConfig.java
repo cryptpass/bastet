@@ -53,12 +53,15 @@ public class SecurityConfig {
         http.addFilterAfter(authenticationOncePerRequestFilter, BasicAuthenticationFilter.class);
 
         http.authorizeHttpRequests(authorizeRequests -> authorizeRequests
+
             .requestMatchers(getPermitAllRequestMatchers())
             .permitAll()
+
             .requestMatchers(new AntPathRequestMatcher("/api/v1/admin/**"))
             .authenticated()
             .requestMatchers(new AntPathRequestMatcher("/api/v1/admin/**"))
             .hasAuthority("ROLE_" + User.Role.Type.ADMIN.name())
+
             .anyRequest()
             .authenticated()
         );
