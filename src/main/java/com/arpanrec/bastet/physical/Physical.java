@@ -50,7 +50,7 @@ public class Physical implements UserDetailsService {
                 physical = new Postgres(physicalConfig.getConfig());
                 break;
             default:
-                throw new PhysicalException("Unknown physical type: " + physicalConfig.getType().toString());
+                throw new PhysicalException("Unknown physical type: " + physicalConfig.getType());
         }
     }
 
@@ -61,7 +61,7 @@ public class Physical implements UserDetailsService {
         if (currentVersion == 0) {
             throw new KeyValueNotFoundException("No version found for key: " + key);
         }
-        EncryptedValue encryptedValue = physical.read(key, currentVersion);
+        Physical.EncryptedValue encryptedValue = physical.read(key, currentVersion);
         if (encryptedValue == null) {
             throw new KeyValueNotFoundException("Key not found, Key: " + key + " Version: " + currentVersion);
         }
@@ -244,5 +244,16 @@ public class Physical implements UserDetailsService {
         public enum Type {
             SQLITE, LIBSQL, POSTGRES
         }
+    }
+
+    public record EncryptedEncryptionKey(
+        String encryptedEncryptionKey,
+        String encryptionKeyHash,
+        String encryptorKeyHash) {
+    }
+
+    public record EncryptedValue(
+        String encryptedValue,
+        String encryptionKeyHash) {
     }
 }

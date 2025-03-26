@@ -9,7 +9,7 @@ public interface IPhysical {
 
     int getNextVersion(String key);
 
-    EncryptedValue read(String key, int version);
+    Physical.EncryptedValue read(String key, int version);
 
     void write(String key, String value, int version, String encryptorKeyHash);
 
@@ -17,9 +17,9 @@ public interface IPhysical {
 
     List<String> listKeys(String key);
 
-    EncryptedEncryptionKey readEncryptedKey(String encryption_key_hash_c);
+    Physical.EncryptedEncryptionKey readEncryptedKey(String encryption_key_hash_c);
 
-    void writeEncryptedKey(EncryptedEncryptionKey encryptedEncryptionKey);
+    void writeEncryptedKey(Physical.EncryptedEncryptionKey encryptedEncryptionKey);
 
     Optional<User> readUser(String username);
 

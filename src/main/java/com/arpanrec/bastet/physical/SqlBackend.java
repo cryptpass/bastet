@@ -107,11 +107,11 @@ abstract class SqlBackend implements IPhysical {
     }
 
     @Override
-    public EncryptedValue read(String key, int version) {
+    public Physical.EncryptedValue read(String key, int version) {
         Connection connection = getConnect();
         String query = "SELECT value_c, encryptor_key_hash_c FROM key_value_t WHERE key_c = ? AND version_c = ? AND " +
             "deleted_c = FALSE";
-        EncryptedValue encryptedValue = null;
+        Physical.EncryptedValue encryptedValue = null;
         try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
             preparedStatement.setString(1, key);
             preparedStatement.setInt(2, version);
@@ -119,7 +119,7 @@ abstract class SqlBackend implements IPhysical {
             if (resultSet.next()) {
                 String value = resultSet.getString(1);
                 String encryptorKeyHash = resultSet.getString(2);
-                encryptedValue = new EncryptedValue(value, encryptorKeyHash);
+                encryptedValue = new Physical.EncryptedValue(value, encryptorKeyHash);
             }
         } catch (SQLException e) {
             throw new PhysicalException("Failed to create statement", e);
@@ -181,16 +181,16 @@ abstract class SqlBackend implements IPhysical {
     }
 
     @Override
-    public EncryptedEncryptionKey readEncryptedKey(String encryption_key_hash_c) {
+    public Physical.EncryptedEncryptionKey readEncryptedKey(String encryption_key_hash_c) {
         Connection connection = getConnect();
         String query = "SELECT encrypted_encryption_key_c, encryption_key_hash_c, encryptor_key_hash_c FROM " +
             "encryption_keys_t WHERE encryption_key_hash_c = ?";
-        EncryptedEncryptionKey encryptedEncryptionKey = null;
+        Physical.EncryptedEncryptionKey encryptedEncryptionKey = null;
         try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
             preparedStatement.setString(1, encryption_key_hash_c);
             ResultSet resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
-                encryptedEncryptionKey = new EncryptedEncryptionKey(
+                encryptedEncryptionKey = new Physical.EncryptedEncryptionKey(
                     resultSet.getString(1),
                     resultSet.getString(2),
                     resultSet.getString(3)
@@ -204,7 +204,7 @@ abstract class SqlBackend implements IPhysical {
     }
 
     @Override
-    public void writeEncryptedKey(EncryptedEncryptionKey encryptedEncryptionKey) {
+    public void writeEncryptedKey(Physical.EncryptedEncryptionKey encryptedEncryptionKey) {
         Connection connection = getConnect();
         String query = "INSERT INTO encryption_keys_t (encrypted_encryption_key_c, encryption_key_hash_c, " +
             "encryptor_key_hash_c) VALUES (?, ?, ?)";
