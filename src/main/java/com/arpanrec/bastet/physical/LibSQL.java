@@ -45,7 +45,6 @@ public class LibSQL extends SqlBackend {
         } catch (SQLException e) {
             throw new PhysicalException("Failed to create statement", e);
         }
-        this.closeConnection(connection);
         return version;
     }
 
@@ -62,7 +61,6 @@ public class LibSQL extends SqlBackend {
         } catch (SQLException e) {
             throw new PhysicalException("Failed to create statement", e);
         }
-        this.closeConnection(connection);
         return version + 1;
     }
 
@@ -82,7 +80,6 @@ public class LibSQL extends SqlBackend {
         } catch (SQLException e) {
             throw new PhysicalException("Failed to create statement", e);
         }
-        this.closeConnection(connection);
         return encryptedValue;
     }
 
@@ -101,8 +98,6 @@ public class LibSQL extends SqlBackend {
         } catch (SQLException e) {
             throw new PhysicalException("Failed to create statement", e);
         }
-        this.commitConnection(connection);
-        this.closeConnection(connection);
     }
 
     @Override
@@ -114,8 +109,6 @@ public class LibSQL extends SqlBackend {
         } catch (SQLException e) {
             throw new PhysicalException("Failed to create statement", e);
         }
-        this.commitConnection(connection);
-        this.closeConnection(connection);
     }
 
     @Override
@@ -131,7 +124,6 @@ public class LibSQL extends SqlBackend {
         } catch (SQLException e) {
             throw new PhysicalException("Failed to create statement", e);
         }
-        this.closeConnection(connection);
         return keys;
     }
 
@@ -153,7 +145,6 @@ public class LibSQL extends SqlBackend {
         } catch (SQLException e) {
             throw new PhysicalException("Failed to create statement", e);
         }
-        this.closeConnection(connection);
         return encryptedEncryptionKey;
     }
 
@@ -170,8 +161,6 @@ public class LibSQL extends SqlBackend {
         } catch (SQLException e) {
             throw new PhysicalException("Failed to create statement", e);
         }
-        this.commitConnection(connection);
-        this.closeConnection(connection);
     }
 
     @Override
@@ -191,18 +180,17 @@ public class LibSQL extends SqlBackend {
                 user.setRolesString(resultSet.getString(4));
                 user.setLastLogin(resultSet.getLong(5));
                 long locked = resultSet.getLong(6);
-                if (locked != 0) {
+                if (locked != 0L) {
                     user.setLocked(true);
                 }
                 long enabled = resultSet.getLong(7);
-                if (enabled != 0) {
+                if (enabled != 0L) {
                     user.setEnabled(true);
                 }
             }
         } catch (SQLException e) {
             throw new PhysicalException("Failed to create statement", e);
         }
-        this.closeConnection(connection);
         return Optional.ofNullable(user);
     }
 
@@ -224,8 +212,6 @@ public class LibSQL extends SqlBackend {
         } catch (SQLException e) {
             throw new PhysicalException("Failed to create statement", e);
         }
-        this.commitConnection(connection);
-        this.closeConnection(connection);
     }
 
     @Override
@@ -241,8 +227,6 @@ public class LibSQL extends SqlBackend {
         } catch (SQLException e) {
             throw new PhysicalException("Failed to create statement", e);
         }
-        this.commitConnection(connection);
-        this.closeConnection(connection);
     }
 
 
