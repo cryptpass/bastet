@@ -1,13 +1,13 @@
 package com.arpanrec.bastet.auth;
 
 import com.arpanrec.bastet.hash.Hashing;
+import com.arpanrec.bastet.physical.Physical;
 import com.arpanrec.bastet.physical.User;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
@@ -17,6 +17,12 @@ public class AuthenticationProviderImpl implements AuthenticationProvider {
 
     private final PasswordEncoder encoder = Hashing.INSTANCE;
 
+    private final Physical physical;
+
+    public AuthenticationProviderImpl(Physical physical) {
+        this.physical = physical;
+    }
+
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
         if (authentication.getDetails() == null) {
@@ -25,7 +31,7 @@ public class AuthenticationProviderImpl implements AuthenticationProvider {
         }
 
         log.trace("User authentication started for {}", authentication.getName());
-        UserDetails user = (User) authentication.getDetails();
+        User user = (User) authentication.getDetails();
         CharSequence providedPassword = ((AuthenticationImpl) authentication).getProvidedPassword();
 
         if (!user.isEnabled() || !user.isAccountNonExpired() || !user.isAccountNonLocked()
@@ -41,6 +47,12 @@ public class AuthenticationProviderImpl implements AuthenticationProvider {
             log.trace("User {} authentication failed", authentication.getName());
             authentication.setAuthenticated(false);
         }
+
+        if (authentication.isAuthenticated()) {
+            user.setLastLogin(System.currentTimeMillis());
+            physical.writeUser(user);
+        }
+
         return authentication;
     }
 
