@@ -1,2 +1,2 @@
 ---
-bastet-config: src/test/resources/bastet-test.json
+bastet-config: bastet-test.json
