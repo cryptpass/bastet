@@ -13,7 +13,8 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 abstract class SqlBackend implements IPhysical {
-    public void createTable() {
+
+    protected void createTable() {
         Connection connection = getConnect();
         try (Statement statement = connection.createStatement()) {
             statement.execute("CREATE TABLE IF NOT EXISTS encryption_keys_t ("
@@ -21,10 +22,7 @@ abstract class SqlBackend implements IPhysical {
                 + "encrypted_encryption_key_c TEXT NOT NULL, "
                 + "encryption_key_hash_c TEXT NOT NULL, "
                 + "encryptor_key_hash_c TEXT NOT NULL, "
-                + "UNIQUE (encryption_key_hash_c)"
-                + ");");
-            this.commitConnection(connection);
-            log.info("Created table encryption_keys_t");
+                + "UNIQUE (encryption_key_hash_c));");
             statement.execute("CREATE TABLE IF NOT EXISTS key_value_t ("
                 + "id_c INTEGER PRIMARY KEY AUTOINCREMENT, "
                 + "key_c TEXT NOT NULL, "
@@ -34,10 +32,7 @@ abstract class SqlBackend implements IPhysical {
                 + "updated_at_c INTEGER NOT NULL, "
                 + "encryptor_key_hash_c TEXT NOT NULL, "
                 + "FOREIGN KEY (encryptor_key_hash_c) REFERENCES encryption_keys_t (encryption_key_hash_c), "
-                + "UNIQUE (key_c, version_c)"
-                + ")");
-            this.commitConnection(connection);
-            log.info("Created table key_value_t");
+                + "UNIQUE (key_c, version_c));");
             statement.execute("CREATE TABLE IF NOT EXISTS users_t ("
                 + "id_c INTEGER PRIMARY KEY AUTOINCREMENT, "
                 + "username_c TEXT NOT NULL, "
@@ -48,57 +43,67 @@ abstract class SqlBackend implements IPhysical {
                 + "lastLogin_c INTEGER, "
                 + "locked_c BOOLEAN DEFAULT TRUE NOT NULL, "
                 + "enabled_c BOOLEAN DEFAULT FALSE NOT NULL, "
-                + "UNIQUE (username_c)"
-                + ")");
-            this.commitConnection(connection);
+                + "UNIQUE (username_c));");
             log.info("Created table users_t");
-            this.closeConnection(connection);
         } catch (SQLException e) {
             throw new PhysicalException("Failed to create statement", e);
         }
+        this.commitConnection(connection);
+        this.closeConnection(connection);
     }
-
 
     protected abstract Connection getConnect();
 
-    protected abstract void commitConnection(Connection connection);
+    protected void closeConnection(Connection connection) {
+        try {
+            connection.close();
+        } catch (SQLException e) {
+            throw new PhysicalException("Failed to close connection", e);
+        }
+    }
 
-    protected abstract void closeConnection(Connection connection);
+    protected void commitConnection(Connection connection) {
+        try {
+            connection.commit();
+        } catch (SQLException e) {
+            throw new PhysicalException("Failed to commit connection", e);
+        }
+    }
 
     @Override
     public int getCurrentVersion(String key) {
         Connection connection = getConnect();
         String query = "SELECT MAX(version_c) FROM key_value_t WHERE key_c = ? AND deleted_c = FALSE";
+        int version = 0;
         try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
             preparedStatement.setString(1, key);
             ResultSet resultSet = preparedStatement.executeQuery();
-            int version = 0;
             if (resultSet.next()) {
                 version = resultSet.getInt(1);
             }
-            this.closeConnection(connection);
-            return version;
         } catch (SQLException e) {
             throw new PhysicalException("Failed to create statement", e);
         }
+        this.closeConnection(connection);
+        return version;
     }
 
     @Override
     public int getNextVersion(String key) {
         Connection connection = getConnect();
-        String query = "SELECT MAX(version_c) FROM key_value_t WHERE key_c = ?";
-        try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+        int version = 0;
+        try (PreparedStatement preparedStatement = connection.prepareStatement("SELECT MAX(version_c) FROM " +
+            "key_value_t WHERE key_c = ?")) {
             preparedStatement.setString(1, key);
             ResultSet resultSet = preparedStatement.executeQuery();
-            int version = 0;
             if (resultSet.next()) {
                 version = resultSet.getInt(1);
             }
-            this.closeConnection(connection);
-            return version + 1;
         } catch (SQLException e) {
             throw new PhysicalException("Failed to create statement", e);
         }
+        this.closeConnection(connection);
+        return version + 1;
     }
 
     @Override
@@ -106,21 +111,21 @@ abstract class SqlBackend implements IPhysical {
         Connection connection = getConnect();
         String query = "SELECT value_c, encryptor_key_hash_c FROM key_value_t WHERE key_c = ? AND version_c = ? AND " +
             "deleted_c = FALSE";
+        EncryptedValue encryptedValue = null;
         try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
             preparedStatement.setString(1, key);
             preparedStatement.setInt(2, version);
             ResultSet resultSet = preparedStatement.executeQuery();
-            EncryptedValue encryptedValue = null;
             if (resultSet.next()) {
                 String value = resultSet.getString(1);
                 String encryptorKeyHash = resultSet.getString(2);
                 encryptedValue = new EncryptedValue(value, encryptorKeyHash);
             }
-            this.closeConnection(connection);
-            return encryptedValue;
         } catch (SQLException e) {
             throw new PhysicalException("Failed to create statement", e);
         }
+        this.closeConnection(connection);
+        return encryptedValue;
     }
 
     @Override
@@ -135,11 +140,11 @@ abstract class SqlBackend implements IPhysical {
             preparedStatement.setLong(4, System.currentTimeMillis());
             preparedStatement.setString(5, encryptorKeyHash);
             preparedStatement.executeUpdate();
-            this.commitConnection(connection);
-            this.closeConnection(connection);
         } catch (SQLException e) {
             throw new PhysicalException("Failed to create statement", e);
         }
+        this.commitConnection(connection);
+        this.closeConnection(connection);
     }
 
     @Override
@@ -150,11 +155,11 @@ abstract class SqlBackend implements IPhysical {
             preparedStatement.setString(1, key);
             preparedStatement.setInt(2, version);
             preparedStatement.executeUpdate();
-            this.commitConnection(connection);
-            this.closeConnection(connection);
         } catch (SQLException e) {
             throw new PhysicalException("Failed to create statement", e);
         }
+        this.commitConnection(connection);
+        this.closeConnection(connection);
     }
 
     @Override
@@ -168,11 +173,11 @@ abstract class SqlBackend implements IPhysical {
             while (resultSet.next()) {
                 keys.add(resultSet.getString(1));
             }
-            this.closeConnection(connection);
-            return keys;
         } catch (SQLException e) {
             throw new PhysicalException("Failed to create statement", e);
         }
+        this.closeConnection(connection);
+        return keys;
     }
 
     @Override
@@ -180,10 +185,10 @@ abstract class SqlBackend implements IPhysical {
         Connection connection = getConnect();
         String query = "SELECT encrypted_encryption_key_c, encryption_key_hash_c, encryptor_key_hash_c FROM " +
             "encryption_keys_t WHERE encryption_key_hash_c = ?";
+        EncryptedEncryptionKey encryptedEncryptionKey = null;
         try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
             preparedStatement.setString(1, encryption_key_hash_c);
             ResultSet resultSet = preparedStatement.executeQuery();
-            EncryptedEncryptionKey encryptedEncryptionKey = null;
             if (resultSet.next()) {
                 encryptedEncryptionKey = new EncryptedEncryptionKey(
                     resultSet.getString(1),
@@ -191,11 +196,11 @@ abstract class SqlBackend implements IPhysical {
                     resultSet.getString(3)
                 );
             }
-            this.closeConnection(connection);
-            return encryptedEncryptionKey;
         } catch (SQLException e) {
             throw new PhysicalException("Failed to create statement", e);
         }
+        this.closeConnection(connection);
+        return encryptedEncryptionKey;
     }
 
     @Override
@@ -208,11 +213,11 @@ abstract class SqlBackend implements IPhysical {
             preparedStatement.setString(2, encryptedEncryptionKey.encryptionKeyHash());
             preparedStatement.setString(3, encryptedEncryptionKey.encryptorKeyHash());
             preparedStatement.executeUpdate();
-            this.commitConnection(connection);
-            this.closeConnection(connection);
         } catch (SQLException e) {
             throw new PhysicalException("Failed to create statement", e);
         }
+        this.commitConnection(connection);
+        this.closeConnection(connection);
     }
 
     @Override
@@ -220,10 +225,10 @@ abstract class SqlBackend implements IPhysical {
         String query = "SELECT email_c, password_hash_c, password_last_changed_c, roles_c, lastLogin_c, locked_c, " +
             "enabled_c FROM users_t WHERE username_c = ?";
         Connection connection = getConnect();
+        User user = null;
         try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
             preparedStatement.setString(1, username);
             ResultSet resultSet = preparedStatement.executeQuery();
-            User user = null;
             if (resultSet.next()) {
                 user = new User();
                 user.setUsername(username);
@@ -235,11 +240,11 @@ abstract class SqlBackend implements IPhysical {
                 user.setLocked(resultSet.getBoolean(6));
                 user.setEnabled(resultSet.getBoolean(7));
             }
-            this.closeConnection(connection);
-            return Optional.ofNullable(user);
         } catch (SQLException e) {
             throw new PhysicalException("Failed to create statement", e);
         }
+        this.closeConnection(connection);
+        return Optional.ofNullable(user);
     }
 
     @Override
@@ -257,12 +262,11 @@ abstract class SqlBackend implements IPhysical {
             preparedStatement.setBoolean(7, user.isLocked());
             preparedStatement.setBoolean(8, user.isEnabled());
             preparedStatement.executeUpdate();
-            this.commitConnection(connection);
-            this.closeConnection(connection);
         } catch (SQLException e) {
             throw new PhysicalException("Failed to create statement", e);
         }
-
+        this.commitConnection(connection);
+        this.closeConnection(connection);
     }
 
     @Override
@@ -280,11 +284,10 @@ abstract class SqlBackend implements IPhysical {
             preparedStatement.setBoolean(7, user.isEnabled());
             preparedStatement.setString(8, user.getUsername());
             preparedStatement.executeUpdate();
-            this.commitConnection(connection);
-            this.closeConnection(connection);
         } catch (SQLException e) {
             throw new PhysicalException("Failed to create statement", e);
         }
+        this.commitConnection(connection);
+        this.closeConnection(connection);
     }
-
 }
