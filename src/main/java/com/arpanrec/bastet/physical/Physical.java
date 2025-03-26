@@ -47,9 +47,10 @@ public class Physical implements UserDetailsService {
                 physical = new LibSQL(physicalConfig.getConfig());
                 break;
             case POSTGRES:
-                throw new PhysicalException("Unknown physical type.");
+                physical = new Postgres(physicalConfig.getConfig());
+                break;
             default:
-                throw new PhysicalException("Unknown physical type.");
+                throw new PhysicalException("Unknown physical type: " + physicalConfig.getType().toString());
         }
     }
 

@@ -38,7 +38,7 @@ dependencies {
     implementation("org.bouncycastle:bcpkix-jdk18on:1.78.1")
     implementation("org.pgpainless:pgpainless-core:1.6.7")
     implementation("org.xerial:sqlite-jdbc")
-    implementation("com.dbeaver.jdbc:com.dbeaver.jdbc.driver.libsql:1.0.2")
+    implementation("org.postgresql:postgresql:42.7.5")
 
     implementation("org.springframework.boot:spring-boot-starter-web") {
         exclude(group = "org.springframework.boot", module = "spring-boot-starter-logging")
