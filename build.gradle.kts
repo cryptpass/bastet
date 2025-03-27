@@ -14,6 +14,8 @@ plugins {
     id("org.jetbrains.kotlin.plugin.serialization") version "2.1.10"
     idea
     id("org.graalvm.buildtools.native") version "0.10.3"
+    id("org.jetbrains.kotlin.plugin.jpa") version "2.1.0" // kotlin("plugin.jpa") version "2.1.0"
+    id("org.hibernate.orm") version "6.6.11.Final"
 }
 
 group = "com.arpanrec"
@@ -37,6 +39,11 @@ dependencies {
     implementation("org.bouncycastle:bcprov-jdk18on:1.78.1")
     implementation("org.bouncycastle:bcpkix-jdk18on:1.78.1")
     implementation("org.pgpainless:pgpainless-core:1.6.7")
+
+    implementation("org.springframework.boot:spring-boot-starter-data-jpa") {
+        exclude(group = "org.springframework.boot", module = "spring-boot-starter-logging")
+    }
+    implementation("org.hibernate.orm:hibernate-community-dialects")
     implementation("org.xerial:sqlite-jdbc")
     implementation("org.postgresql:postgresql:42.7.5")
     implementation("com.dbeaver.jdbc:com.dbeaver.jdbc.driver.libsql:1.0.2")
@@ -164,9 +171,14 @@ tasks {
     }
 }
 
+allOpen {
+    annotation("jakarta.persistence.Entity")
+    annotation("jakarta.persistence.MappedSuperclass")
+    annotation("jakarta.persistence.Embeddable")
+}
+
 fun getMainClassName(): String {
-    val mainClass = "com.arpanrec.bastet.Application"
-    return mainClass
+    return "com.arpanrec.bastet.Application"
 }
 
 fun getVersions(): String {

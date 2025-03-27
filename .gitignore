@@ -36,3 +36,4 @@ tmp/*
 .ansible
 bastet.json
 *.sqlite3
+foo*

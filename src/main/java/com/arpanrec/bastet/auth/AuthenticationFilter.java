@@ -1,6 +1,6 @@
 package com.arpanrec.bastet.auth;
 
-import com.arpanrec.bastet.ConfigService;
+import com.arpanrec.bastet.Application;
 import com.arpanrec.bastet.physical.Physical;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -29,8 +29,8 @@ public class AuthenticationFilter extends OncePerRequestFilter {
     private final UserDetailsService userDetailsService;
 
     public AuthenticationFilter(@Autowired AuthenticationManagerImpl authenticationManagerImpl,
-                                @Autowired Physical physical, @Autowired ConfigService configService) {
-        String headerKey = configService.getConfig().server().authHeaderKey();
+                                @Autowired Physical physical) {
+        String headerKey = Application.CONFIG.authHeaderKey();
         if (headerKey != null && !headerKey.isBlank()) {
             this.headerKey = headerKey;
         }

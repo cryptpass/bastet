@@ -1,6 +1,6 @@
 package com.arpanrec.bastet.physical;
 
-import com.arpanrec.bastet.ConfigService;
+import com.arpanrec.bastet.Application;
 import com.arpanrec.bastet.encryption.Encryptor;
 import com.arpanrec.bastet.exceptions.BadClient;
 import com.arpanrec.bastet.exceptions.KeyValueNotFoundException;
@@ -12,7 +12,6 @@ import java.util.Map;
 import java.util.Optional;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -32,8 +31,8 @@ public class Physical implements UserDetailsService {
 
     private final Hashing hashing = Hashing.INSTANCE;
 
-    public Physical(@Autowired ConfigService configService) {
-        Config physicalConfig = configService.getConfig().physical();
+    public Physical() {
+        Config physicalConfig = Application.CONFIG.physical();
         if (physicalConfig.getMasterKey() != null) {
             setMasterKey(physicalConfig.getMasterKey());
             log.debug("Master key set from config");
